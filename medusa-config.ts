@@ -30,4 +30,10 @@ module.exports = defineConfig({
       options: {},
     },
   ],
+
+  modules: [
+    {
+      resolve: "./src/modules/empresa",
+    } 
+  ],
 })

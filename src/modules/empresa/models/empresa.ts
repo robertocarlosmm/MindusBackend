@@ -24,7 +24,7 @@ const Empresa = model.define("empresa", {
     premios: model.array().nullable(),
     procesosProductivos: model.text().nullable(),
     procesosControlCalidad: model.text().nullable(),
-    añoFundacion: model.number(),
+    anhoFundacion: model.number(),
     idiomas: model.array().nullable(),
     paisesAtencion: model.array().nullable()
 })

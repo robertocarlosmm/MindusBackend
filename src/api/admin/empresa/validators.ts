@@ -1,0 +1,27 @@
+import { z } from "zod"
+
+export const PostEmpresaSchema = z.object({
+    ruc: z.string(),
+    razonSocial: z.string(),
+    descripcionBreve: z.string(),
+    descripcionExtensa: z.string().nullable().optional(),
+    logo: z.string().nullable().optional(),
+    cantidadTrabajadores: z.number().nullable().optional(),
+    categorias: z.array(z.string()),
+    redesSociales: z.array(z.string()).nullable().optional(),
+    ubicacion: z.string(),
+    telefono: z.string(),
+    email: z.string(),
+    canalesDeAtencion: z.array(z.string()).nullable().optional(),
+    politicaDeGarantia: z.string(),
+    politicaDeDevolucion: z.string(),
+    website: z.string().nullable().optional(),
+    horarioAtencion: z.string(),
+    certificaciones: z.array(z.string()).nullable().optional(),
+    premios: z.array(z.string()).nullable().optional(),
+    procesosProductivos: z.string().nullable().optional(),
+    procesosControlCalidad: z.string().nullable().optional(),
+    anhoFundacion: z.number(),
+    idiomas: z.array(z.string()).nullable().optional(),
+    paisesAtencion: z.array(z.string()).nullable().optional(),
+})

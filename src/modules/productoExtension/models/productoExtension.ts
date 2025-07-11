@@ -4,14 +4,14 @@ const ProductoExtension = model.define("productoExtension", {
     id: model.id().primaryKey(),
 
     // Campos obligatorios
-    codigoReferencia: model.text(),      // Código o referencia del producto
-    descripcionTecnica: model.text(),      // Descripción técnica detallada
-    fotosAltaCalidad: model.array(),     // Fotos de alta calidad desde varios ángulos
-    unidadVenta: model.text(),      // Unidad de venta
-    pesoVolumen: model.text(),      // Peso y volumen para cálculo de envío
-    tiempoEstimadoEntrega: model.text(),      // Tiempo estimado de entrega
+    codigoReferencia: model.text().nullable(),      // Código o referencia del producto
+    descripcionTecnica: model.text().nullable(),      // Descripción técnica detallada
+    fotosAltaCalidad: model.array().nullable(),     // Fotos de alta calidad desde varios ángulos
+    unidadVenta: model.text().nullable(),      // Unidad de venta
+    pesoVolumen: model.text().nullable(),      // Peso y volumen para cálculo de envío
+    tiempoEstimadoEntrega: model.text().nullable(),      // Tiempo estimado de entrega
     disponibilidadStock: model.number().default(0),    // Disponibilidad/Stock
-    politicasGarantiaDevoluciones: model.text(),      // Políticas de garantía y devoluciones
+    politicasGarantiaDevoluciones: model.text().nullable(),      // Políticas de garantía y devoluciones
 
     // Campos opcionales
     imagenesContextoIndustrial: model.array().nullable(), // Imágenes de uso/instalación en contexto

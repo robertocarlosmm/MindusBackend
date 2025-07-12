@@ -34,6 +34,9 @@ module.exports = defineConfig({
   modules: [
     {
       resolve: "./src/modules/empresa",
-    } 
+    },
+    {
+      resolve: "./src/modules/productoExtension",
+    },
   ],
 })

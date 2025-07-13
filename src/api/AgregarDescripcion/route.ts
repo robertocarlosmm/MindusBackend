@@ -15,8 +15,9 @@ export async function POST(
     const productoExtensionModuleService: ProductoExtensionModuleService = req.scope.resolve(PROUCTOEXTENSION_MODULE)
 
     if (data.idProductoExtension) {
+        console.log("Actualizando producto extension con id:", data.idProductoExtension)
         const productoExtension = await productoExtensionModuleService.updateProductoExtensions(
-            { id: data.idProductoExtension }, { descripcionTecnica: req.validatedBody.descripcionTecnica }
+            { id: data.idProductoExtension, descripcionTecnica: data.descripcionTecnica }
         )
 
         res.json({ productoExtension })

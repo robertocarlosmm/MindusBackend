@@ -5,6 +5,7 @@ import {
   Input,
   Button,
 } from "@medusajs/ui"
+import { useEffect, useState } from "react"
 import { 
   useForm, 
   FormProvider,
@@ -16,18 +17,91 @@ const schema = zod.object({
   descripcionLarga: zod.string(),
 })
 
+
+
+
+
 export const EditForm = ({data}) => {
 
-    console.log("EditForm data:", data.description) // This will log the product object, including its ID
+  
+ const [extendedData, setExtendedData] = useState(null)
+
+  // console.log("EditForm data:", data.description) // This will log the product object, including its ID
+
+
+
+
+   useEffect(() => {
+    fetch("http://localhost:9000/getFullProducto", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idProducto: data.id }),
+      credentials: "include", // if authentication is required
+    })
+      .then(res => res.json())
+      .then(result => {
+        // Handle the result as needed
+        // console.log(result)
+        data = result;
+         setExtendedData(result);
+        // console.log("EditForm data:", data.descripcionTecnica);
+          form.reset({
+          descripcionLarga: data.descripcionTecnica || "",
+        })
+      })
+      .catch(err => {
+        // Handle errors as needed
+        console.error(err)
+      })
+  }, [data.id])
+
+  
   const form = useForm<zod.infer<typeof schema>>({
     defaultValues: {
-      descripcionLarga: data.description || "",
+      descripcionLarga: data.descripcionTecnica || "",
     },
   })
+  
+  const handleSubmit = form.handleSubmit(async  ({ descripcionLarga }) => {
 
-  const handleSubmit = form.handleSubmit(({ descripcionLarga }) => {
-    // TODO submit to backend
-    console.log(descripcionLarga)
+    // console.log("ID del producto extendido:", extendedData.idProductoExtension);
+    // if(extendedData.idProductoExtension == null){
+    //   console.log("Creating new product extension with description:", descripcionLarga);
+    //   console.log("Product ID:", extendedData.id);
+    // }
+    // else{
+    //   console.log("Updating product extension with ID:", extendedData.idProductoExtension, "and description:", descripcionLarga);
+    // }
+
+    const body = extendedData?.idProductoExtension
+    ? {
+        idProducto: extendedData.id,
+        idProductoExtension: extendedData.idProductoExtension,
+        descripcionTecnica: descripcionLarga,
+      }
+    : {
+        idProducto: extendedData.id,
+        descripcionTecnica: descripcionLarga,
+      };
+
+      // console.log("Request body:", body);
+
+       try {
+        const response = await fetch("http://localhost:9000/AgregarDescripcion", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          credentials: "include", // if your API requires authentication
+        });
+
+        const result = await response.json();
+        // console.log("API response:", result);
+        alert("Descripción guardada correctamente");
+        // Handle success (e.g., show notification, close drawer, etc.)
+      } catch (error) {
+        console.error("Error sending request:", error);
+        // Handle error (e.g., show error notification)
+      }
   })
 
   return (
@@ -43,7 +117,7 @@ export const EditForm = ({data}) => {
           >
           <Drawer.Header>
             <Heading className="capitalize">
-              Edit Item
+              Editar Descripcion Larga
             </Heading>
           </Drawer.Header>
           <Drawer.Body className="flex max-w-full flex-1 flex-col gap-y-8 overflow-y-auto">

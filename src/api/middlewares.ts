@@ -20,6 +20,11 @@ export default defineMiddlewares({
             middlewares: [upload.single("file")],
         },
         {
+            matcher: "/admin/carga-producto",
+            method: ["POST"],
+            middlewares: [upload.single("file")],
+        },
+        {
             matcher: "/AgregarDescripcion",      // coincide con /api/AgregarDescripcion/route.ts
             method: ["POST"],                    // tu endpoint es POST
             middlewares: [

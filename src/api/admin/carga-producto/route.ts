@@ -6,7 +6,8 @@ import { Readable } from "stream"
 
 import { Modules, ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
-import { createProductsWorkflow } from "@medusajs/medusa/core-flows"
+import ProductoExtensionModuleService from "../../../modules/productoExtension/service";
+import { PROUCTOEXTENSION_MODULE } from "../../../modules/productoExtension";
 
 import type {
     IStoreModuleService,
@@ -127,6 +128,20 @@ export async function POST(req: MulterRequest, res: MedusaResponse) {
                     [Modules.STORE]: { store_id: tiendas[0].store.id },
                 })
                 console.log("Producto vinculado a tienda:")
+
+                const productoExtensionModuleService: ProductoExtensionModuleService = req.scope.resolve(PROUCTOEXTENSION_MODULE)
+                const productoExtension = await productoExtensionModuleService.createProductoExtensions(
+                    { descripcionTecnica: data["descripcion larga"]}
+                )
+                //console.log(req.validatedBody)
+
+                const linkDescripcion = req.scope.resolve(ContainerRegistrationKeys.LINK) // ← actualizado
+                //Links:
+                await linkDescripcion.create({
+                    [Modules.PRODUCT]: { product_id: result.id },
+                    [PROUCTOEXTENSION_MODULE]: { producto_extension_id: productoExtension.id },
+                })
+
                 resultados.push({ row: rowNum, ok: true })
             } catch (err: any) {
                 resultados.push({ row: rowNum, ok: false, error: err.message })

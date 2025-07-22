@@ -34,6 +34,9 @@ module.exports = defineConfig({
 
   modules: [
     {
+      resolve: "./src/modules/publicidad",
+    },
+    {
       resolve: "./src/modules/empresa",
     },
     {

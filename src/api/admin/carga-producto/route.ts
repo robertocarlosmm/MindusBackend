@@ -117,6 +117,7 @@ export async function POST(req: MulterRequest, res: MedusaResponse) {
                     height: productoNuevo.height,
                     width: productoNuevo.width,
                     metadata: productoNuevo.metadata,
+                    status: "published"
                     // ...other product fields
                 })
 

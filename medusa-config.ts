@@ -15,6 +15,7 @@ module.exports = defineConfig({
 
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
+    redisUrl: process.env.REDIS_URL, // or "redis://localhost:6379"
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
@@ -37,6 +38,18 @@ module.exports = defineConfig({
     },
     {
       resolve: "./src/modules/productoExtension",
+    },
+    {
+      resolve: "@medusajs/medusa/cache-redis",
+      options: { redisUrl: process.env.REDIS_URL },
+    },
+    {
+      resolve: "@medusajs/medusa/event-bus-redis",
+      options: { redisUrl: process.env.REDIS_URL },
+    },
+    {
+      resolve: "@medusajs/medusa/workflow-engine-redis",
+      options: { redis: { url: process.env.REDIS_URL } },
     },
   ],
 })

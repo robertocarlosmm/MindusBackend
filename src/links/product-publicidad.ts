@@ -4,5 +4,5 @@ import publicidad from "../modules/publicidad";
 
 export default defineLink(
     ProductModule.linkable.product,
-    publicidad.linkable.publicidad
+    { linkable: publicidad.linkable.publicidad, isList: true }
 );

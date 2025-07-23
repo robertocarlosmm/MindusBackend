@@ -1,6 +1,7 @@
 import { defineMiddlewares, validateAndTransformBody } from "@medusajs/framework/http"
 import { PostEmpresaSchema } from "./admin/empresa/validators"
 import { ProductoExtensionSchema } from "./AgregarDescripcion/validators"
+import {PublicidadSchema} from "./admin/crear-publicidad/validators"
 import multer from "multer"
 
 const upload = multer({ storage: multer.memoryStorage() })
@@ -12,6 +13,13 @@ export default defineMiddlewares({
             method: ["POST"],
             middlewares: [
                 validateAndTransformBody(PostEmpresaSchema),
+            ],
+        },
+        {
+            matcher: "/admin/crear-publicidad",
+            method: ["POST"],
+            middlewares: [
+                validateAndTransformBody(PublicidadSchema),
             ],
         },
         {

@@ -10,15 +10,17 @@ import ProductoExtensionModuleService from "../../../modules/productoExtension/s
 import { PROUCTOEXTENSION_MODULE } from "../../../modules/productoExtension";
 
 import type {
-    IStoreModuleService,
     IProductModuleService
 } from "@medusajs/framework/types"
 
+import { kebabCase } from "lodash";
 
 // 1️⃣ Extendemos el Request para incluir `file.buffer`
 type MulterRequest = MedusaRequest & {
     file?: MulterFile & { buffer: Buffer }
 }
+
+
 
 export async function POST(req: MulterRequest, res: MedusaResponse) {
     // 2️⃣ Aseguramos que Multer haya cargado el CSV en memoria
@@ -27,7 +29,6 @@ export async function POST(req: MulterRequest, res: MedusaResponse) {
     }
 
     // 3️⃣ Resolución única de services
-    const storeService = req.scope.resolve<IStoreModuleService>(Modules.STORE)
     const productService = req.scope.resolve<IProductModuleService>(Modules.PRODUCT)
     const linkService = req.scope.resolve(ContainerRegistrationKeys.LINK) // ← actualizado
 
@@ -49,7 +50,7 @@ export async function POST(req: MulterRequest, res: MedusaResponse) {
                 if (!data[k]?.trim()) faltan.push(k)
             });
 
-            console.log(`Fila ${rowNum}:`, JSON.stringify(data, null, 2))
+            //console.log(`Fila ${rowNum}:`, JSON.stringify(data, null, 2))
 
             if (faltan.length) {
                 resultados.push({
@@ -70,14 +71,35 @@ export async function POST(req: MulterRequest, res: MedusaResponse) {
                     filters: { ruc: data["RUC"] },
                 })
                 if (tiendas[0].store != null) {
-                    console.log("Tiendas encontradas:", tiendas[0].store.id)
+                    //console.log("Tiendas encontradas:", tiendas[0].store.id)
                 } else {
-                    console.log("No se encontró tienda para el RUC:", data["RUC"])
+                    //console.log("No se encontró tienda para el RUC:", data["RUC"])
                     continue;
                 }
                 //GET: empresas[0].store.id
 
                 // b) Crear producto
+
+                //validar handle
+                let baseHandle = kebabCase(data["titulo"]).replace(/[^a-z0-9-]/g, '') // Normalizar a kebab-case y eliminar caracteres no permitidos
+                baseHandle = baseHandle.slice(0, 44); // Limitar a 50
+                const { data: existingHandles } = await query.graph({
+                    entity: "product",
+                    fields: ["handle"],
+                    filters: {
+                        handle: { $like: `%${baseHandle}%` },
+                    }
+                })
+                const handleList = existingHandles.map(h => h.handle);
+                //console.log("Handles existentes:", handleList)
+                let finalHandle = baseHandle;
+                let counter = 1;
+                while (handleList.includes(finalHandle)) {
+                    //console.log(`Handle ya existe: ${finalHandle}, generando nuevo...`)
+                    finalHandle = `${baseHandle}-${counter++}`;
+                }
+
+                //poner datos
                 const parsedMetadata = data["metadata"]
                     ? JSON.parse(data["metadata"].replace(/""/g, `"`)) // convierte string CSV a JSON real
                     : {};
@@ -90,6 +112,7 @@ export async function POST(req: MulterRequest, res: MedusaResponse) {
                     : [];
                 const productoNuevo = {
                     title: data["titulo"],
+                    handle: finalHandle,
                     subtitle: data["subtitulo"] || "",
                     description: data["descripcion corta"] || "",
                     images: imageLinks,
@@ -105,10 +128,11 @@ export async function POST(req: MulterRequest, res: MedusaResponse) {
                     //status: "published"
                 }
 
-                console.log("Producto a crear:", JSON.stringify(productoNuevo, null, 2))
+                //console.log("Producto a crear:", JSON.stringify(productoNuevo, null, 2))
 
                 const result = await productService.createProducts({
                     title: productoNuevo.title,
+                    handle: productoNuevo.handle,
                     subtitle: productoNuevo.subtitle,
                     description: productoNuevo.description,
                     images: productoNuevo.images,
@@ -121,18 +145,18 @@ export async function POST(req: MulterRequest, res: MedusaResponse) {
                     // ...other product fields
                 })
 
-                console.log("Producto creado:", result)
+                //console.log("Producto creado:", result)
 
                 // e) Links: Product ↔ Store
                 await linkService.create({
                     [Modules.PRODUCT]: { product_id: result.id },
                     [Modules.STORE]: { store_id: tiendas[0].store.id },
                 })
-                console.log("Producto vinculado a tienda:")
+                //console.log("Producto vinculado a tienda:")
 
                 const productoExtensionModuleService: ProductoExtensionModuleService = req.scope.resolve(PROUCTOEXTENSION_MODULE)
                 const productoExtension = await productoExtensionModuleService.createProductoExtensions(
-                    { descripcionTecnica: data["descripcion larga"]}
+                    { descripcionTecnica: data["descripcion larga"] }
                 )
                 //console.log(req.validatedBody)
 
@@ -158,3 +182,4 @@ export async function POST(req: MulterRequest, res: MedusaResponse) {
         return res.status(500).json({ message: "Error leyendo CSV", error: err.message })
     }
 }
+

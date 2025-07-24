@@ -34,6 +34,7 @@
     "@techlabi/medusa-marketplace-plugin": "^0.25.0",
     "awilix": "^8.0.1",
     "csv-parser": "^3.2.0",
+    "lodash": "^4.17.21",
     "multer": "^2.0.1",
     "pg": "^8.13.0"
   },

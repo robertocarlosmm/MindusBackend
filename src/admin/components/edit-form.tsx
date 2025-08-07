@@ -32,7 +32,7 @@ export const EditForm = ({data}) => {
 
 
    useEffect(() => {
-    fetch("http://localhost:9000/getFullProducto", {
+    fetch("https://mindusbackend-production.up.railway.app/getFullProducto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idProducto: data.id }),
@@ -72,6 +72,7 @@ export const EditForm = ({data}) => {
     // else{
     //   console.log("Updating product extension with ID:", extendedData.idProductoExtension, "and description:", descripcionLarga);
     // }
+    
 
     const body = extendedData?.idProductoExtension
     ? {
@@ -87,7 +88,7 @@ export const EditForm = ({data}) => {
       // console.log("Request body:", body);
 
        try {
-        const response = await fetch("http://localhost:9000/AgregarDescripcion", {
+        const response = await fetch("https://mindusbackend-production.up.railway.app/AgregarDescripcion", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),

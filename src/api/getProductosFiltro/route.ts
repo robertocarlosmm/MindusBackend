@@ -50,39 +50,45 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
         // 3. Total de registros
         const countQuery = `
-      SELECT COUNT(DISTINCT p.id) as total
-      FROM product p
-      LEFT JOIN product_product_store_store ppss ON ppss.product_id = p.id
-      LEFT JOIN store s ON s.id = ppss.store_id
-      LEFT JOIN product_category_product pcp ON pcp.product_id = p.id
-      LEFT JOIN product_category pc ON pc.id = pcp.product_category_id
-      ${whereSql}
-    `
+        SELECT COUNT(DISTINCT p.id) as total
+        FROM product p
+        LEFT JOIN product_product_store_store ppss ON ppss.product_id = p.id
+        LEFT JOIN store s ON s.id = ppss.store_id
+        LEFT JOIN product_category_product pcp ON pcp.product_id = p.id
+        LEFT JOIN product_category pc ON pc.id = pcp.product_category_id
+        ${whereSql}
+        `
 
         const countResult = await client.query(countQuery, params)
         const total = parseInt(countResult.rows[0]?.total || "0", 10)
 
         // 4. Query con datos
         const dataQuery = `
-      SELECT DISTINCT p.*,
-             pc.id   AS category_id,
-             pc.name AS category_name,
-             s.id    AS store_id,
-             s.name  AS store_name,
-             e.id    AS empresa_id,
-             e."razonSocial" AS empresa_name,
-             e.ruc   AS empresa_ruc
-      FROM product p
-      LEFT JOIN product_product_store_store ppss ON ppss.product_id = p.id
-      LEFT JOIN store s ON s.id = ppss.store_id
-      LEFT JOIN store_store_empresa_empresa see ON see.store_id = s.id
-      LEFT JOIN empresa e ON e.id = see.empresa_id
-      LEFT JOIN product_category_product pcp ON pcp.product_id = p.id
-      LEFT JOIN product_category pc ON pc.id = pcp.product_category_id
-      ${whereSql}
-      ORDER BY p.created_at DESC
-      LIMIT $${params.length + 1} OFFSET $${params.length + 2}
-    `
+        SELECT p.*,
+                s.id    AS store_id,
+                s.name  AS store_name,
+                e.id    AS empresa_id,
+                e."razonSocial" AS empresa_name,
+                e.ruc   AS empresa_ruc,
+                COALESCE(
+                json_agg(
+                    DISTINCT jsonb_build_object('id', pc.id, 'name', pc.name)
+                ) FILTER (WHERE pc.id IS NOT NULL),
+                '[]'
+                ) AS categories
+        FROM product p
+        LEFT JOIN product_product_store_store ppss ON ppss.product_id = p.id
+        LEFT JOIN store s ON s.id = ppss.store_id
+        LEFT JOIN store_store_empresa_empresa see ON see.store_id = s.id
+        LEFT JOIN empresa e ON e.id = see.empresa_id
+        LEFT JOIN product_category_product pcp ON pcp.product_id = p.id
+        LEFT JOIN product_category pc ON pc.id = pcp.product_category_id
+        ${whereSql}
+        GROUP BY p.id, s.id, e.id
+        ORDER BY p.created_at DESC
+        LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+        `
+
 
         const dataResult = await client.query(dataQuery, [
             ...params,

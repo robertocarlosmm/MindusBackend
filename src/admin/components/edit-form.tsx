@@ -32,7 +32,7 @@ export const EditForm = ({data}) => {
 
 
    useEffect(() => {
-    fetch("https://mindusbackend-production.up.railway.app/getFullProducto", {
+    fetch("https://seller.mindus.lat/getFullProducto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idProducto: data.id }),

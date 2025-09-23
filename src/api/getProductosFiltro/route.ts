@@ -32,6 +32,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         const params: any[] = []
         const whereClauses: string[] = []
 
+        whereClauses.push(`p.deleted_at IS NULL`)
+
         if (storeId) {
             params.push(storeId)
             whereClauses.push(`s.id = $${params.length}`)
